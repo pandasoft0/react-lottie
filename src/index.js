@@ -5,9 +5,10 @@ import bodymovin from 'bodymovin';
 export default class Lottie extends React.Component {
 
   render() {
+    const { width, height } = this.props;
     const lottieStyles = {
-      width: `${this.props.width}px` || '100%',
-      height: `${this.props.height}px` || '100%',
+      width: width ? `${width}px` : '100%',
+      height: height ? `${height}px` : '100%',
       overflow: 'hidden',
       margin: '0 auto'
     };
@@ -24,7 +25,12 @@ export default class Lottie extends React.Component {
       animationData: this.props.options.animationData,
       rendererSettings: this.props.options.rendererSettings
     };
+
     this.anim = bodymovin.loadAnimation(this.options);
+
+    this.props.eventListeners.forEach((eventListener) => {
+      this.anim.addEventListener(eventListener.eventName, eventListener.callback);
+    });
   }
 
   componentWillUpdate( nextProps, nextState ) {
@@ -73,6 +79,7 @@ export default class Lottie extends React.Component {
 }
 
 Lottie.propTypes = {
+  eventListeners: PropTypes.arrayOf(PropTypes.object),
   options: PropTypes.object.isRequired,
   height: PropTypes.number,
   width: PropTypes.number,
@@ -83,6 +90,7 @@ Lottie.propTypes = {
 };
 
 Lottie.defaultProps = {
+  eventListeners: [],
   isStopped: false,
   isPaused: false,
   speed: 1,
