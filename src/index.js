@@ -3,42 +3,50 @@ import PropTypes from 'prop-types';
 import bodymovin from 'bodymovin';
 
 export default class Lottie extends React.Component {
-
   render() {
-    const { width, height } = this.props;
+    const {width, height} = this.props;
     const lottieStyles = {
       width: width ? `${width}px` : '100%',
       height: height ? `${height}px` : '100%',
       overflow: 'hidden',
-      margin: '0 auto'
+      margin: '0 auto',
     };
-
-    return <div ref='lavContainer' style={lottieStyles}></div>;
+    return <div ref='lavContainer' style={lottieStyles}/>;
   }
 
   componentDidMount() {
+    const {
+      options: {
+        loop,
+        autoplay,
+        animationData,
+        rendererSettings,
+        eventListeners
+      }
+    } = this.props;
+
+    const {lavContainer} = this.refs;
     this.options = {
-      container: this.refs.lavContainer,
+      container: lavContainer,
       renderer: 'svg',
-      loop: this.props.options.loop !== false,
-      autoplay: this.props.options.autoplay !== false,
-      animationData: this.props.options.animationData,
-      rendererSettings: this.props.options.rendererSettings
+      loop: loop !== false,
+      autoplay: autoplay !== false,
+      animationData: animationData,
+      rendererSettings: rendererSettings,
     };
 
     this.anim = bodymovin.loadAnimation(this.options);
-
-    this.props.eventListeners.forEach((eventListener) => {
-      this.anim.addEventListener(eventListener.eventName, eventListener.callback);
-    });
+    this.registerEvents(eventListeners);
   }
 
-  componentWillUpdate( nextProps, nextState ) {
+  componentWillUpdate(nextProps, nextState) {
     /* Recreate the animation handle if the data is changed */
-    if( this.options.animationData !== nextProps.options.animationData ) {
+    if (this.options.animationData !== nextProps.options.animationData) {
+      this.deRegisterEvents(this.props.eventListeners);
       this.destroy();
       this.options.animationData = nextProps.options.animationData;
       this.anim = bodymovin.loadAnimation(this.options);
+      this.registerEvents(nextProps.eventListeners);
     }
   }
 
@@ -51,9 +59,9 @@ export default class Lottie extends React.Component {
 
   pause() {
     if (this.props.isPaused && !this.anim.isPaused) {
-      this.anim.pause()
+      this.anim.pause();
     } else if (!this.props.isPaused && this.anim.isPaused) {
-      this.anim.pause()
+      this.anim.pause();
     }
   }
 
@@ -70,11 +78,23 @@ export default class Lottie extends React.Component {
   }
 
   setDirection() {
-    this.anim.setDirection(this.props.direction)
+    this.anim.setDirection(this.props.direction);
   }
 
   destroy() {
     this.anim.destroy();
+  }
+
+  registerEvents(eventListeners) {
+    eventListeners && eventListeners.forEach((eventListener) => {
+      this.anim.addEventListener(eventListener.eventName, eventListener.callback);
+    });
+  }
+
+  deRegisterEvents(eventListeners) {
+    eventListeners && eventListeners.forEach((eventListener) => {
+      this.anim.removeEventListener(eventListener.eventName, eventListener.callback);
+    });
   }
 }
 
