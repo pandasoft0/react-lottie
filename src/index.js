@@ -3,43 +3,31 @@ import PropTypes from 'prop-types';
 import bodymovin from 'bodymovin';
 
 export default class Lottie extends React.Component {
-  render() {
-    const {width, height} = this.props;
-    const lottieStyles = {
-      width: width ? `${width}px` : '100%',
-      height: height ? `${height}px` : '100%',
-      overflow: 'hidden',
-      margin: '0 auto',
-    };
-    return <div ref='lavContainer' style={lottieStyles}/>;
-  }
-
   componentDidMount() {
     const {
       options: {
         loop,
         autoplay,
         animationData,
-        rendererSettings,
+        rendererSettings
       },
-      eventListeners
+      eventListeners,
     } = this.props;
 
-    const {lavContainer} = this.refs;
     this.options = {
-      container: lavContainer,
+      container: this.el,
       renderer: 'svg',
       loop: loop !== false,
       autoplay: autoplay !== false,
-      animationData: animationData,
-      rendererSettings: rendererSettings,
+      animationData,
+      rendererSettings,
     };
 
     this.anim = bodymovin.loadAnimation(this.options);
     this.registerEvents(eventListeners);
   }
 
-  componentWillUpdate(nextProps, nextState) {
+  componentWillUpdate(nextProps /* , nextState */) {
     /* Recreate the animation handle if the data is changed */
     if (this.options.animationData !== nextProps.options.animationData) {
       this.deRegisterEvents(this.props.eventListeners);
@@ -57,28 +45,28 @@ export default class Lottie extends React.Component {
     this.setDirection();
   }
 
-  pause() {
-    if (this.props.isPaused && !this.anim.isPaused) {
-      this.anim.pause();
-    } else if (!this.props.isPaused && this.anim.isPaused) {
-      this.anim.pause();
-    }
-  }
-
-  stop() {
-    this.anim.stop();
-  }
-
-  play() {
-    this.anim.play();
-  }
-
   setSpeed() {
     this.anim.setSpeed(this.props.speed);
   }
 
   setDirection() {
     this.anim.setDirection(this.props.direction);
+  }
+
+  play() {
+    this.anim.play();
+  }
+
+  stop() {
+    this.anim.stop();
+  }
+
+  pause() {
+    if (this.props.isPaused && !this.anim.isPaused) {
+      this.anim.pause();
+    } else if (!this.props.isPaused && this.anim.isPaused) {
+      this.anim.pause();
+    }
   }
 
   destroy() {
@@ -96,13 +84,45 @@ export default class Lottie extends React.Component {
       this.anim.removeEventListener(eventListener.eventName, eventListener.callback);
     });
   }
+
+  render() {
+    const {width, height} = this.props;
+
+    const getSize = (initial) => {
+      let size;
+
+      if (typeof initial === 'number') {
+        size = `${initial}px`;
+      } else {
+        size = initial || '100%';
+      }
+
+      return size;
+    };
+
+    const lottieStyles = {
+      width: getSize(width),
+      height: getSize(height),
+      overflow: 'hidden',
+      margin: '0 auto',
+    };
+
+    return (
+      <div
+        ref={(c) => {
+          this.el = c;
+        }}
+        style={lottieStyles}
+      />
+    );
+  }
 }
 
 Lottie.propTypes = {
   eventListeners: PropTypes.arrayOf(PropTypes.object),
   options: PropTypes.object.isRequired,
-  height: PropTypes.number,
-  width: PropTypes.number,
+  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   isStopped: PropTypes.bool,
   isPaused: PropTypes.bool,
   speed: PropTypes.number,
