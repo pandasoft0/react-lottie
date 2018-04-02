@@ -9,7 +9,8 @@ export default class Lottie extends React.Component {
         loop,
         autoplay,
         animationData,
-        rendererSettings
+        rendererSettings,
+        segments
       },
       eventListeners,
     } = this.props;
@@ -19,6 +20,7 @@ export default class Lottie extends React.Component {
       renderer: 'svg',
       loop: loop !== false,
       autoplay: autoplay !== false,
+      segments: segments !== false,
       animationData,
       rendererSettings,
     };
@@ -32,14 +34,23 @@ export default class Lottie extends React.Component {
     if (this.options.animationData !== nextProps.options.animationData) {
       this.deRegisterEvents(this.props.eventListeners);
       this.destroy();
-      this.options = {...this.options, ...nextProps.options};
+      this.options.animationData = nextProps.options.animationData;
       this.anim = lottie.loadAnimation(this.options);
       this.registerEvents(nextProps.eventListeners);
     }
   }
 
   componentDidUpdate() {
-    this.props.isStopped ? this.stop() : this.play();
+    if (this.props.isStopped) {
+      this.stop();
+    } else {
+      if (this.props.segments) {
+        this.playSegments();
+      } else {
+        this.play();
+      }
+    }
+
     this.pause();
     this.setSpeed();
     this.setDirection();
@@ -62,6 +73,10 @@ export default class Lottie extends React.Component {
 
   play() {
     this.anim.play();
+  }
+
+  playSegments() {
+    this.anim.playSegments(this.props.segments);
   }
 
   stop() {
@@ -133,6 +148,7 @@ Lottie.propTypes = {
   isStopped: PropTypes.bool,
   isPaused: PropTypes.bool,
   speed: PropTypes.number,
+  segments: PropTypes.arrayOf(PropTypes.number),
   direction: PropTypes.number,
 };
 
