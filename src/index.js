@@ -146,6 +146,8 @@ export default class Lottie extends React.Component {
       height: getSize(height),
       overflow: 'hidden',
       margin: '0 auto',
+      outline: 'none',
+      ...this.props.style,
     };
 
     const onClickHandler = isClickToPauseDisabled ? () => null : this.handleClickToPause;
