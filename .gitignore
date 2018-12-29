@@ -1,4 +1,6 @@
 node_modules
 *.log
 .idea
-dist
+
+# since we're pulling from the repo, need to leave the dist directory
+#dist

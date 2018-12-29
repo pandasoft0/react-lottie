@@ -31,6 +31,10 @@ export default class Lottie extends React.Component {
 
     this.anim = lottie.loadAnimation(this.options);
     this.registerEvents(eventListeners);
+
+    if (this.props.goToAndStop && this.props.goToAndStop.hasOwnProperty('value')) {
+      this.anim.goToAndStop(this.props.goToAndStop.value, !!this.props.goToAndStop.isFrame);
+    }
   }
 
   componentWillUpdate(nextProps /* , nextState */) {
@@ -41,6 +45,10 @@ export default class Lottie extends React.Component {
       this.options = {...this.options, ...nextProps.options};
       this.anim = lottie.loadAnimation(this.options);
       this.registerEvents(nextProps.eventListeners);
+
+      if (this.props.goToAndStop && this.props.goToAndStop.hasOwnProperty('value')) {
+        this.anim.goToAndStop(this.props.goToAndStop.value, !!this.props.goToAndStop.isFrame);
+      }
     }
   }
 
@@ -175,6 +183,7 @@ Lottie.propTypes = {
   options: PropTypes.object.isRequired,
   height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  goToAndStop: PropTypes.shape({value: PropTypes.number, isFrame: PropTypes.bool}),
   isStopped: PropTypes.bool,
   isPaused: PropTypes.bool,
   speed: PropTypes.number,
@@ -189,6 +198,7 @@ Lottie.propTypes = {
 
 Lottie.defaultProps = {
   eventListeners: [],
+  goToAndStop: null,
   isStopped: false,
   isPaused: false,
   speed: 1,
