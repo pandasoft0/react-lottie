@@ -129,6 +129,10 @@ var Lottie = function (_React$Component) {
       this.pause();
       this.setSpeed();
       this.setDirection();
+
+      if (this.props.goToAndStop && this.props.goToAndStop.hasOwnProperty('value')) {
+        this.anim.goToAndStop(this.props.goToAndStop.value, !!this.props.goToAndStop.isFrame);
+      }
     }
   }, {
     key: 'componentWillUnmount',
